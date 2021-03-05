@@ -1,13 +1,13 @@
 mainLinks:
-  - desc: Get a Node.js (managed) ready environement to use in a minute
+  - desc: Get a Node.js (managed) ready environment to use in a minute
     url: https://labs.ovh.com/managed-nodejs
     thumbnail: static/img/node.png
     isVisible: true
-  - desc: Get a Python (managed) ready environement to use in a minute
+  - desc: Get a Python (managed) ready environment to use in a minute
     url: https://labs.ovh.com/managed-python
     thumbnail: static/img/python.png
     isVisible: true
-  - desc: Get a Ruby (managed) ready environement to use in a minute
+  - desc: Get a Ruby (managed) ready environment to use in a minute
     url: https://labs.ovh.com/managed-ruby
     thumbnail: static/img/ruby.png
     isVisible: true
@@ -16,18 +16,18 @@ mainLinks:
     isVisible: true
 footerLinks:
   - icon: envelope
-    url: mailto:contact@altertek.org
+    url: mailto:contact@me.fr
     title: mail
-    isVisible: true
+    isVisible: false
   - icon: globe
-    url: https://altertek.org
+    url: https://www.ovhcloud.com
     title: website
     isVisible: true
   - icon: github
-    url: https://github.com/altertek
+    url: https://github.com/ovh
     title: github
     isVisible: true
   - icon: twitter
-    url: https://twitter.com/altertek
+    url: https://twitter.com/OVHcloud
     title: twitter
     isVisible: true

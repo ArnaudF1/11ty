@@ -35,6 +35,9 @@ module.exports = function (eleventyConfig) {
     "./src/admin/config.yml": "./admin/config.yml",
   });
 
+  // Copy CSS Folder to /_site
+  eleventyConfig.addPassthroughCopy("./src/static/css");
+
   // Copy Image Folder to /_site
   eleventyConfig.addPassthroughCopy("./src/static/img");
 

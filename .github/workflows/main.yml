@@ -1,42 +1,47 @@
-# This is a basic workflow to help you get started with Actions
-name: CD
+name: Deploy 11ty on OVHCloud Power
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
     branches: [ master ]
-  # pull_request:
-    # branches: [ master ]
   
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Triggers for every push
-# on: [push]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # # This workflow contains a single job called "build"
-  # build:
-  # This workflow contains a single job called "build"
   deploy:    
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Deploy to OVHcloud hosting
-        # call script with all commands (docker)
-        uses: guitdev/ovhcloud-deploy-hosting-action@v1.5
-        # Deploys your repository to the following environment
-        env:          
-          OVH_HOSTING_USER: ${{ secrets.OVH_HOSTING_USER }}
-          OVH_HOSTING_PASSWORD: ${{ secrets.OVH_HOSTING_PASSWORD }}
-          OVH_HOSTING_DOMAIN: ssh.cluster030.hosting.ovh.net
-          DOCUMENT_ROOT: ${{ secrets.DOCUMENT_ROOT }}
-          OVH_HOSTING_URL: ${{ secrets.OVH_HOSTING_URL }}
-          REPOSITORY_NAME: 11ty
-          REPOSITORY_URL: https://github.com/guitdev/11ty.git
-          
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq sshpass openssh-client
+
+      - name: WakeUp website
+        env:
+            OVH_WEBSITE_URL: ${{ secrets.OVH_WEBSITE_URL }}
+        run: curl --silent --insecure --location --write-out "%{http_code}" -o /dev/null ${OVH_WEBSITE_URL}
+
+      - name: Clone over SSH
+        env:
+            OVH_SSH_HOST: ${{ secrets.OVH_SSH_HOST }}
+            OVH_SSH_PORT: ${{ secrets.OVH_SSH_PORT }}
+            OVH_SSH_USERNAME: ${{ secrets.OVH_SSH_USERNAME }}
+            OVH_SSH_PASSWORD: ${{ secrets.OVH_SSH_PASSWORD }}
+        run: sshpass -p ${OVH_SSH_PASSWORD} ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oLogLevel=quiet ${OVH_SSH_USERNAME}@${OVH_SSH_HOST} -p ${OVH_SSH_PORT} -- 'rm -rf ${HOME}/.powerworkflow && git clone '${GITHUB_SERVER_URL}'/'${GITHUB_REPOSITORY}'.git --single-branch --branch '${GITHUB_REF##*/}' ${HOME}/.powerworkflow'
+
+      - name: Running install script over SSH
+        env:
+            OVH_SSH_HOST: ${{ secrets.OVH_SSH_HOST }}
+            OVH_SSH_PORT: ${{ secrets.OVH_SSH_PORT }}
+            OVH_SSH_USERNAME: ${{ secrets.OVH_SSH_USERNAME }}
+            OVH_SSH_PASSWORD: ${{ secrets.OVH_SSH_PASSWORD }}
+            OVH_WEBSITE_DOCUMENTROOT: ${{ secrets.OVH_WEBSITE_DOCUMENTROOT }}
+            OVH_WEBSITE_ENTRYPOINT: ${{ secrets.OVH_WEBSITE_ENTRYPOINT }}
+            OVH_WEBSITE_PUBLICDIR: ${{ secrets.OVH_WEBSITE_PUBLICDIR }}
+            OVH_WEBSITE_URL: ${{ secrets.OVH_WEBSITE_URL }}
+        run: sshpass -p ${OVH_SSH_PASSWORD} ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oLogLevel=quiet ${OVH_SSH_USERNAME}@${OVH_SSH_HOST} -p ${OVH_SSH_PORT} -- 'bash ${HOME}/.powerworkflow/power_install.sh -u '${OVH_WEBSITE_URL}' -d '${OVH_WEBSITE_DOCUMENTROOT}' -e '${OVH_WEBSITE_ENTRYPOINT}' -p '${OVH_WEBSITE_PUBLICDIR}''
+
+      - name: WakeUp website
+        env:
+            OVH_WEBSITE_URL: ${{ secrets.OVH_WEBSITE_URL }}
+        run: curl --silent --fail --insecure --location --write-out "%{http_code}" -o /dev/null ${OVH_WEBSITE_URL}
